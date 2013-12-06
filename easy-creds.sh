@@ -581,14 +581,12 @@ unset ap_mac
 #fi
 
 echo "Changing MAC of "  ${MONMODE}
-sleep 2
 ifconfig ${MONMODE} down
 sleep 2
 macchanger -m $CUSTOMMAC ${MONMODE}
 sleep 2
 ifconfig ${MONMODE} up
 sleep 2
-echo "MAC changed"
 }
 ##################################################
 f_mac_manual(){
@@ -1005,6 +1003,16 @@ echo -e "\n\e[1;34m[*]\e[0m Your interface has now been placed in Monitor Mode\n
 airmon-ng | grep mon | sed '$a\\n'
 unset MONMODE
 while [ -z ${MONMODE} ]; do read -p "Enter your monitor enabled interface name (ex. mon0): " MONMODE; done
+
+# Change the MAC of monitor interface
+echo "Changing MAC of "  ${MONMODE}
+ifconfig ${MONMODE} down
+sleep 2
+macchanger -m $CUSTOMMAC ${MONMODE}
+sleep 2
+ifconfig ${MONMODE} up
+sleep 2
+
 unset TUNIFACE
 while [ -z ${TUNIFACE} ]; do read -p "Enter your tunnel interface (ex. at0): " TUNIFACE; done
 f_karmadhcp
