@@ -671,7 +671,7 @@ f_ipcalc(){
 f_dhcpmanual(){
 unset ATCIDR
 while [ -z "${ATCIDR}" ]; do
-	read -p "Network range for your tunneled interface, example 10.0.0.0/24: " ATCIDR
+	read -p "Network range for your tunneled interface: " -i "10.0.0.0/24" ATCIDR
 	if [[ ! ${ATCIDR} =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/[0-9]{1,2}$ ]]; then ATCIDR=; fi
 done
 
