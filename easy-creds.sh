@@ -45,7 +45,22 @@ trap f_Quit 2
 
 # Set the MAC to be used for wireless ifaces
 CUSTOMMAC=00:11:22:33:44:55
-echo -e "Mac in use: "$CUSTOMMAC". Change it in the script if you don't like it"
+# Interface connected to the internet
+internet_iface="eth0"
+# Main wireless interface
+wireless_iface="wlan0"
+# Secondary wireless interface
+monitor_iface="mon0"
+# Tunnel interface
+tunnel_iface="at0"
+
+echo -e "Settings in use:\nMAC: "$CUSTOMMAC
+echo -e "Interface connected to the internet: "$internet_iface
+echo -e "Main wireless interface: "$wireless_iface
+echo -e "Secondary wireless interface: "$monitor_iface
+echo -e "Tunnel interface: "$tunnel_iface
+echo -e "If you do not like them you can change them in the script"
+
 
 # Prep the wifi card
 echo -e "Starting wifi card preping..." 
@@ -512,21 +527,13 @@ SIDEJACK="$(echo ${SIDEJACK} | tr 'A-Z' 'a-z')"
 #ifconfig | awk '/Link encap:Eth/ {print;getline;print}' | sed '{ N; s/\n/ /; s/Link en.*.HWaddr//g; s/ Bcast.*//g; s/UP.*.:1//g; s/inet addr/IP/g; }' | sed '$a\\n'
 
 unset IFACE
-# *** OVERRIDE ***
-#while [ -z "${IFACE}" ]; do read -p "Interface connected to the internet (ex. eth0): " IFACE; done
-IFACE="eth0"
-#wirelesscheck=$(airmon-ng | grep 'wlan')
-#if [ ! -z "${wirelesscheck}" ]; then
-#	airmon-ng
-#else
-#	echo -e "\n\e[1;31m[-]\e[0m I can't find a wireless interface to display...continuing anyway\n"
-#	sleep 5
-#fi
+IFACE=$internet_iface
+echo -e "Interface connected to the internet: "$IFACE
 
 unset WIFACE
-# *** OVERRIDE ***
-#while [ -z "${WIFACE}" ]; do read -p "Wireless interface name (ex. wlan0): " WIFACE; done
-WIFACE="wlan0"
+WIFACE=$wireless_iface
+echo -e "Wireless interface: "$WIFACE
+
 if [ "${eviltwin}" == "1" ]; then
 	airmon-ng start ${WIFACE} &> /dev/null
 else
@@ -540,23 +547,21 @@ modprobe tun
 echo -e "\n\e[1;34m[*]\e[0m Your interface has now been placed in Monitor Mode\n"
 airmon-ng | grep mon | sed '$a\\n'
 unset MONMODE
-# *** OVERRIDE ***
-#while [ -z "${MONMODE}" ]; do read -p "Enter your monitor enabled interface name, (ex: mon0): " MONMODE; done
-MONMODE="mon0"
+MONMODE=$monitor_iface
+echo -e "Wireless monitor interface: "$MONMODE
 if [ ! -z "$(find /usr/bin/ | grep macchanger)" ] || [ ! -z "$(find /usr/local/bin | grep macchanger)" ]; then
 	f_macchanger
 fi
 unset TUNIFACE
-# *** OVERRIDE ***
-#while [ -z "${TUNIFACE}" ]; do read -p "Enter your tunnel interface, example at0: " TUNIFACE; done
-TUNIFACE="at0"
-#read -p "Do you have a dhcpd.conf file to use? [y/N]: " DHCPFILE
-#DHCPFILE=$(echo ${DHCPFILE} | tr 'A-Z' 'a-z')
-#if [ "${DHCPFILE}" == "y" ]; then
-#	f_dhcpconf
-#else
+TUNIFACE=tunnel_iface
+echo -e "Tunnel interface: "$TUNIFACE
+read -p "Do you have a dhcpd.conf file to use? [y/N]: " DHCPFILE
+DHCPFILE=$(echo ${DHCPFILE} | tr 'A-Z' 'a-z')
+if [ "${DHCPFILE}" == "y" ]; then
+	f_dhcpconf
+else
 	f_dhcpmanual
-#fi
+fi
 
 f_dhcptunnel
 }
@@ -672,12 +677,11 @@ f_ipcalc(){
 ##################################################
 f_dhcpmanual(){
 unset ATCIDR
-# *** OVERRIDE ***
-#while [ -z "${ATCIDR}" ]; do
-#	read -p "Network range for your tunneled interface, example 10.0.0.0/24: " ATCIDR
-#	if [[ ! ${ATCIDR} =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/[0-9]{1,2}$ ]]; then ATCIDR=; fi
-#done
-ATCIDR="10.0.0.0/24"
+while [ -z "${ATCIDR}" ]; do
+	read -p "Network range for your tunneled interface, example 10.0.0.0/24: " ATCIDR
+	if [[ ! ${ATCIDR} =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/[0-9]{1,2}$ ]]; then ATCIDR=; fi
+done
+
 
 unset ATDNS
 # *** OVERRIDE ***
