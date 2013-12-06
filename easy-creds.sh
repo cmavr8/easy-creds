@@ -45,7 +45,17 @@ trap f_Quit 2
 
 # Set the MAC to be used for wireless ifaces
 CUSTOMMAC=00:11:22:33:44:55
+echo -e "Mac in use: "$CUSTOMMAC". Change it in the script if you don't like it"
 
+# Prep the wifi card
+echo -e "Starting wifi card preping..." 
+airmon-ng check kill 
+airmon-ng check
+ifconfig wlan0 down
+iwconfig wlan0 txpower 1000mw
+macchanger -m $CUSTOMMAC wlan0
+ifconfig wlan0 up
+echo -e "Wifi card preped"
 
 #
 # MISCELLANEOUS FUNCTIONS
