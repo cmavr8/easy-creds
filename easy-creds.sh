@@ -46,19 +46,19 @@ trap f_Quit 2
 # Set the MAC to be used for wireless ifaces
 CUSTOMMAC=00:11:22:33:44:55
 # Interface connected to the internet
-internet_iface="eth0"
+IFACE="eth0"
 # Main wireless interface
-wireless_iface="wlan0"
+WIFACE="wlan0"
 # Secondary wireless interface
-monitor_iface="mon0"
+MONMODE="mon0"
 # Tunnel interface
-tunnel_iface="at0"
+TUNIFACE="at0"
 
 echo -e "Settings in use:\nMAC: "$CUSTOMMAC
-echo -e "Interface connected to the internet: "$internet_iface
-echo -e "Main wireless interface: "$wireless_iface
-echo -e "Secondary wireless interface: "$monitor_iface
-echo -e "Tunnel interface: "$tunnel_iface
+echo -e "Interface connected to the internet: "$IFACE
+echo -e "Main wireless interface: "$WIFACE
+echo -e "Secondary wireless interface: "$WIFACE
+echo -e "Tunnel interface: "$TUNIFACE
 echo -e "If you do not like them you can change them in the script"
 
 
@@ -66,13 +66,13 @@ echo -e "If you do not like them you can change them in the script"
 echo -e "Starting wifi card preping..." 
 airmon-ng check kill 
 airmon-ng check
-ifconfig  $wireless_iface down
+ifconfig $WIFACE down
 # Did you know that you live in Bolivia?
 iw reg set BO
 sleep 2
-iwconfig $wireless_iface txpower 1000mw
-macchanger -m $CUSTOMMAC $wireless_iface
-ifconfig $wireless_iface up
+iwconfig $WIFACE txpower 1000mw
+macchanger -m $CUSTOMMAC $WIFACE 
+ifconfig $WIFACE up
 echo -e "Wifi card preped"
 
 #
@@ -529,14 +529,8 @@ SIDEJACK="$(echo ${SIDEJACK} | tr 'A-Z' 'a-z')"
 #echo -e "Network Interfaces:\n"
 #ifconfig | awk '/Link encap:Eth/ {print;getline;print}' | sed '{ N; s/\n/ /; s/Link en.*.HWaddr//g; s/ Bcast.*//g; s/UP.*.:1//g; s/inet addr/IP/g; }' | sed '$a\\n'
 
-unset IFACE
-IFACE=$internet_iface
 echo -e "Interface connected to the internet: "$IFACE
-
-unset WIFACE
-WIFACE=$wireless_iface
 echo -e "Wireless interface: "$WIFACE
-
 if [ "${eviltwin}" == "1" ]; then
 	airmon-ng start ${WIFACE} &> /dev/null
 else
@@ -549,14 +543,10 @@ fi
 modprobe tun
 echo -e "\n\e[1;34m[*]\e[0m Your interface has now been placed in Monitor Mode\n"
 airmon-ng | grep mon | sed '$a\\n'
-unset MONMODE
-MONMODE=$monitor_iface
 echo -e "Wireless monitor interface: "$MONMODE
 if [ ! -z "$(find /usr/bin/ | grep macchanger)" ] || [ ! -z "$(find /usr/local/bin | grep macchanger)" ]; then
 	f_macchanger
 fi
-unset TUNIFACE
-TUNIFACE=$tunnel_iface
 echo -e "Tunnel interface: "$TUNIFACE
 read -p "Do you have a dhcpd.conf file to use? [y/N]: " DHCPFILE
 DHCPFILE=$(echo ${DHCPFILE} | tr 'A-Z' 'a-z')
