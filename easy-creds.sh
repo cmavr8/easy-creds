@@ -66,10 +66,13 @@ echo -e "If you do not like them you can change them in the script"
 echo -e "Starting wifi card preping..." 
 airmon-ng check kill 
 airmon-ng check
-ifconfig wlan0 down
-iwconfig wlan0 txpower 1000mw
-macchanger -m $CUSTOMMAC wlan0
-ifconfig wlan0 up
+ifconfig  $wireless_iface down
+# Did you know that you live in Bolivia?
+iw reg set BO
+sleep 2
+iwconfig $wireless_iface txpower 1000mw
+macchanger -m $CUSTOMMAC $wireless_iface
+ifconfig $wireless_iface up
 echo -e "Wifi card preped"
 
 #
@@ -553,7 +556,7 @@ if [ ! -z "$(find /usr/bin/ | grep macchanger)" ] || [ ! -z "$(find /usr/local/b
 	f_macchanger
 fi
 unset TUNIFACE
-TUNIFACE=tunnel_iface
+TUNIFACE=$tunnel_iface
 echo -e "Tunnel interface: "$TUNIFACE
 read -p "Do you have a dhcpd.conf file to use? [y/N]: " DHCPFILE
 DHCPFILE=$(echo ${DHCPFILE} | tr 'A-Z' 'a-z')
@@ -585,7 +588,7 @@ unset ap_mac
 #		sleep 2
 #fi
 
-echo "Changing MAC of "  ${MONMODE}
+echo "Changing MAC of "${MONMODE}
 ifconfig ${MONMODE} down
 sleep 2
 macchanger -m $CUSTOMMAC ${MONMODE}
